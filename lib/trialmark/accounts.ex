@@ -7,6 +7,8 @@ defmodule Trialmark.Accounts do
   alias Trialmark.Repo
 
   alias Trialmark.Accounts.{User, UserToken, UserNotifier}
+  alias Trialmark.Profiles.Profile
+  alias Trialmark.Profiles
 
   ## Database getters
 
@@ -75,9 +77,20 @@ defmodule Trialmark.Accounts do
 
   """
   def register_user(attrs) do
-    %User{}
+    changeset = %User{}
     |> User.registration_changeset(attrs)
-    |> Repo.insert()
+
+    case Repo.insert(changeset) do
+      {:ok, user} ->
+        {:ok, _} = Profiles.change_profile(%Profile{}, %{"name" => "Default", "avatar_url" => "none"})
+        |> Ecto.Changeset.put_assoc(:user, user)
+        |> Trialmark.Repo.insert()
+
+        {:ok, user}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   @doc """

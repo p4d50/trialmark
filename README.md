@@ -43,11 +43,11 @@ This project is licensed under the MIT License - see the [LICENSE](https://opens
 
 ### High Priority
 
-- [] Add user profiles
-- [] Design & create bookmark table
+- [ ] Add user profiles
+- [ ] Design & create bookmark table
 
 ### Medium Priority
 
 ### Low Priority
 
-- [] Migrate app to docker containers
+- [ ] Migrate app to docker containers

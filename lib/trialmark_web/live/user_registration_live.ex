@@ -3,6 +3,7 @@ defmodule TrialmarkWeb.UserRegistrationLive do
 
   alias Trialmark.Accounts
   alias Trialmark.Accounts.User
+  alias Trialmark.Profiles
 
   def render(assigns) do
     ~H"""

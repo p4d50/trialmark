@@ -9,6 +9,8 @@ defmodule Trialmark.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
 
+    has_many :profiles, Trialmark.Profiles.Profile
+
     timestamps(type: :utc_datetime)
   end
 

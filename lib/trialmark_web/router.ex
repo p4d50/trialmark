@@ -82,4 +82,15 @@ defmodule TrialmarkWeb.Router do
       live "/users/confirm", UserConfirmationInstructionsLive, :new
     end
   end
+
+  scope "/profiles", TrialmarkWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live "/", ProfileLive.Index, :index
+    live "/new", ProfileLive.Index, :new
+    live "/:id/edit", ProfileLive.Index, :edit
+
+    live "/:id", ProfileLive.Show, :show
+    live "/:id/show/edit", ProfileLive.Show, :edit
+  end
 end
