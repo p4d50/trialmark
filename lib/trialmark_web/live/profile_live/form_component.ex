@@ -30,7 +30,7 @@ defmodule TrialmarkWeb.ProfileLive.FormComponent do
   end
 
   @impl true
-  def update(%{profile: profile} = assigns, socket) do
+  def update(%{profile: profile, current_user: current_user} = assigns, socket) do
     changeset = Profiles.change_profile(profile)
 
     {:ok,
@@ -69,7 +69,9 @@ defmodule TrialmarkWeb.ProfileLive.FormComponent do
   end
 
   defp save_profile(socket, :new, profile_params) do
-    case Profiles.create_profile(profile_params) do
+    %{"current_user" => current_user} = socket.assigns
+
+    case Profiles.create_profile(profile_params, current_user) do
       {:ok, profile} ->
         notify_parent({:saved, profile})
 

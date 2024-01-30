@@ -42,20 +42,21 @@ defmodule Trialmark.Profiles do
   def get_profile!(id), do: Repo.get!(Profile, id)
 
   @doc """
-  Creates a profile.
+  Creates a profile for specific user.
 
   ## Examples
 
-      iex> create_profile(%{field: value})
+      iex> create_profile(%{field: value}, %User{})
       {:ok, %Profile{}}
 
-      iex> create_profile(%{field: bad_value})
+      iex> create_profile(%{field: bad_value}, %User{})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_profile(attrs \\ %{}) do
+  def create_profile(attrs \\ %{}, user) do
     %Profile{}
     |> Profile.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
     |> Repo.insert()
   end
 

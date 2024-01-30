@@ -8,8 +8,12 @@ defmodule TrialmarkWeb.ProfileLive.Index do
   @impl true
   def mount(_params, %{"user_token" => user_token}, socket) do
     profiles = Profiles.list_profiles_by_user_token(user_token)
+    
+    socket = socket
+      |> stream(:profiles, profiles)
+      |> assign(:current_user, Accounts.get_user_by_session_token(user_token))
 
-    {:ok, stream(socket, :profiles, profiles)}
+    {:ok, socket}
   end
 
   @impl true
@@ -26,6 +30,7 @@ defmodule TrialmarkWeb.ProfileLive.Index do
   defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "New Profile")
+    |> assign(:current_user, socket.assigns.current_user)
     |> assign(:profile, %Profile{})
   end
 
