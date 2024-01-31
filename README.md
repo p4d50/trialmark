@@ -43,10 +43,15 @@ This project is licensed under the MIT License - see the [LICENSE](https://opens
 
 ### High Priority
 
-- [ ] Add user profiles
+- [x] Add user profiles
+- [ ] Configure Let me for profiles
 - [ ] Design & create bookmark table
 
 ### Medium Priority
+
+- [ ] Remove default pages, and layouts
+- [ ] Create user profile chooser
+- [ ] Modify original Profile context tests
 
 ### Low Priority
 
