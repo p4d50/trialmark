@@ -44,7 +44,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://opens
 ### High Priority
 
 - [x] Add user profiles
-- [ ] Configure Let me for profiles
+- [x] Configure Let me for profiles
 - [ ] Design & create bookmark table
 
 ### Medium Priority

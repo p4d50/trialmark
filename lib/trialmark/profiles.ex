@@ -4,8 +4,9 @@ defmodule Trialmark.Profiles do
   """
 
   import Ecto.Query, warn: false
-  alias Trialmark.Repo
 
+  alias Trialmark.Repo
+  alias Trialmark.Policy
   alias Trialmark.Accounts
   alias Trialmark.Accounts.User
   alias Trialmark.Profiles.Profile
@@ -66,17 +67,19 @@ defmodule Trialmark.Profiles do
 
   ## Examples
 
-      iex> update_profile(user, profile, %{field: new_value})
+      iex> update_profile(current_user, profile, %{field: new_value})
       {:ok, %Profile{}}
 
-      iex> update_profile(user, profile, %{field: bad_value})
+      iex> update_profile(current_user, profile, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_profile(%User{id: user_id}, %Profile{} = profile, attrs) when user_id == profile.user_id do
-    profile
-    |> Profile.changeset(attrs)
-    |> Repo.update()
+  def update_profile(%User{} = current_user, %Profile{} = profile, attrs) do
+    with :ok <- Policy.authorize(:profile_update, current_user, profile) do
+      profile
+      |> Profile.changeset(attrs)
+      |> Repo.update()
+    end
   end
 
   @doc """
@@ -91,8 +94,8 @@ defmodule Trialmark.Profiles do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_profile(%Profile{} = profile) do
-    Repo.delete(profile)
+  def delete_profile(%User{} = current_user, %Profile{} = profile) do
+    with :ok <- Policy.authorize(:profile_delete, current_user, profile), do: Repo.delete(profile)
   end
 
   @doc """

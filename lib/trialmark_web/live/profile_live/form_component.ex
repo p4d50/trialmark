@@ -62,16 +62,20 @@ defmodule TrialmarkWeb.ProfileLive.FormComponent do
          socket
          |> put_flash(:info, "Profile updated successfully")
          |> push_patch(to: socket.assigns.patch)}
-
+      
+      {:error, :unauthorized} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "You can't edit this profile")
+         |> push_patch(to: socket.assigns.patch)}
+      
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
     end
   end
 
   defp save_profile(socket, :new, profile_params) do
-    %{"current_user" => current_user} = socket.assigns
-
-    case Profiles.create_profile(profile_params, current_user) do
+    case Profiles.create_profile(profile_params, socket.assigns.current_user) do
       {:ok, profile} ->
         notify_parent({:saved, profile})
 

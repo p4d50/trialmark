@@ -48,8 +48,10 @@ defmodule TrialmarkWeb.ProfileLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     profile = Profiles.get_profile!(id)
-    {:ok, _} = Profiles.delete_profile(profile)
 
-    {:noreply, stream_delete(socket, :profiles, profile)}
+    case Profiles.delete_profile(socket.assigns.current_user, profile) do
+      {:ok, _} -> {:noreply, stream_delete(socket, :profiles, profile)}
+      {:error, :unauthorized} -> {:noreply, put_flash(socket, :error, "You can't delete this profile")}
+    end
   end
 end
