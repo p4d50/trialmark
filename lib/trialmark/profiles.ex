@@ -7,6 +7,7 @@ defmodule Trialmark.Profiles do
   alias Trialmark.Repo
 
   alias Trialmark.Accounts
+  alias Trialmark.Accounts.User
   alias Trialmark.Profiles.Profile
 
   @doc """
@@ -65,14 +66,14 @@ defmodule Trialmark.Profiles do
 
   ## Examples
 
-      iex> update_profile(profile, %{field: new_value})
+      iex> update_profile(user, profile, %{field: new_value})
       {:ok, %Profile{}}
 
-      iex> update_profile(profile, %{field: bad_value})
+      iex> update_profile(user, profile, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_profile(%Profile{} = profile, attrs) do
+  def update_profile(%User{id: user_id}, %Profile{} = profile, attrs) when user_id == profile.user_id do
     profile
     |> Profile.changeset(attrs)
     |> Repo.update()
