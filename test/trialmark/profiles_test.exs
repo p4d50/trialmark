@@ -49,7 +49,7 @@ defmodule Trialmark.ProfilesTest do
       assert {:error, %Ecto.Changeset{}} = Profiles.create_profile(@invalid_attrs, user)
     end
 
-    test "update_profile/2 with valid data updates the profile" do
+    test "update_profile/3 with valid data updates the profile" do
       profile = profile_fixture()
       update_attrs = %{name: "some updated name", avatar_url: "some updated avatar_url"}
 
@@ -58,21 +58,24 @@ defmodule Trialmark.ProfilesTest do
       assert profile.avatar_url == "some updated avatar_url"
     end
 
-    #test "update_profile/2 with invalid data returns error changeset" do
-    #  profile = profile_fixture()
-    #  assert {:error, %Ecto.Changeset{}} = Profiles.update_profile(profile, @invalid_attrs)
-    #  assert profile == Profiles.get_profile!(profile.id)
-    #end
+    test "update_profile/3 with invalid data returns error changeset" do
+      generated_profile = profile_fixture()
+      {:ok, profile} = Profiles.get_profile(generated_profile.user, generated_profile.id)
 
-    #test "delete_profile/1 deletes the profile" do
-    #  profile = profile_fixture()
-    #  assert {:ok, %Profile{}} = Profiles.delete_profile(profile)
-    #  assert_raise Ecto.NoResultsError, fn -> Profiles.get_profile!(profile.id) end
-    #end
+      assert {:error, %Ecto.Changeset{}} = Profiles.update_profile(generated_profile.user, generated_profile, @invalid_attrs)
+      assert Map.delete(generated_profile, :user) == Map.delete(profile, :user)
+    end
 
-    #test "change_profile/1 returns a profile changeset" do
-    #  profile = profile_fixture()
-    #  assert %Ecto.Changeset{} = Profiles.change_profile(profile)
-    #end
+    test "delete_profile/2 deletes the profile" do
+      profile = profile_fixture()
+
+      assert {:ok, profile} = Profiles.delete_profile(profile.user, profile)
+      assert {:error, :not_found} = Profiles.get_profile(profile.user, profile.id)
+    end
+
+    test "change_profile/1 returns a profile changeset" do
+      profile = profile_fixture()
+      assert %Ecto.Changeset{} = Profiles.change_profile(profile)
+    end
   end
 end

@@ -66,12 +66,11 @@ defmodule Trialmark.Profiles do
       Profile
       |> where(id: ^id)
       |> Repo.one()
-    
-    with :ok <- Policy.authorize(:profile_read, current_user, profile) do
-      case profile do
-        nil -> {:error, :not_found}
-        profile -> {:ok, profile}
-      end
+
+    case profile do
+      nil -> {:error, :not_found}
+      profile ->
+        with :ok <- Policy.authorize(:profile_read, current_user, profile), do: {:ok, profile}
     end
   end
 
