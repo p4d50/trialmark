@@ -6,6 +6,7 @@ defmodule Trialmark.ProfilesTest do
   describe "profiles" do
     alias Trialmark.Accounts
 
+    import Trialmark.AccountsFixtures
     import Trialmark.ProfilesFixtures
 
     @invalid_attrs %{name: nil, avatar_url: nil}
@@ -25,35 +26,37 @@ defmodule Trialmark.ProfilesTest do
       assert Map.delete(Enum.at(profiles, 1), :user) == Map.delete(profile, :user)
     end
 
-    test "get_profile!/1 returns the profile with given id" do
+    test "get_profile/2 returns the profile with given id" do
       generated_profile = profile_fixture()
       {:ok, profile} = Profiles.get_profile(generated_profile.user, generated_profile.id)
 
       assert Map.delete(generated_profile, :user) == Map.delete(profile, :user)
     end
 
-    #test "create_profile/1 with valid data creates a profile" do
-    #  valid_attrs = %{name: "some name", avatar_url: "some avatar_url"}
+    test "create_profile/2 with valid data creates a profile" do
+      user = user_fixture()
+      valid_attrs = %{name: "some name", avatar_url: "some avatar_url"}
 
-    #  assert {:ok, %Profile{} = profile} = Profiles.create_profile(valid_attrs)
-    #  assert profile.name == "some name"
-    #  assert profile.avatar_url == "some avatar_url"
-    #end
+      assert {:ok, profile} = Profiles.create_profile(valid_attrs, user)
+      assert profile.name == "some name"
+      assert profile.avatar_url == "some avatar_url"
+      assert profile.user_id == user.id
+    end
 
-    #test "create_profile/1 with invalid data returns error changeset" do
-    #  assert {:error, %Ecto.Changeset{}} = Profiles.create_profile(@invalid_attrs)
-    #end
+    test "create_profile/2 with invalid data returns error changeset" do
+      user = user_fixture()
 
-    #test "update_profile/2 with valid data updates the profile" do
-    #  # First of all we need to write test if auth failed
+      assert {:error, %Ecto.Changeset{}} = Profiles.create_profile(@invalid_attrs, user)
+    end
 
-    #  profile = profile_fixture()
-    #  update_attrs = %{name: "some updated name", avatar_url: "some updated avatar_url"}
+    test "update_profile/2 with valid data updates the profile" do
+      profile = profile_fixture()
+      update_attrs = %{name: "some updated name", avatar_url: "some updated avatar_url"}
 
-    #  assert {:ok, %Profile{} = profile} = Profiles.update_profile(profile, update_attrs)
-    #  assert profile.name == "some updated name"
-    #  assert profile.avatar_url == "some updated avatar_url"
-    #end
+      assert {:ok, profile} = Profiles.update_profile(profile.user, profile, update_attrs)
+      assert profile.name == "some updated name"
+      assert profile.avatar_url == "some updated avatar_url"
+    end
 
     #test "update_profile/2 with invalid data returns error changeset" do
     #  profile = profile_fixture()
