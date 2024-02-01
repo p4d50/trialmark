@@ -42,8 +42,8 @@ defmodule Trialmark.Profiles do
       |> Repo.preload(:profiles)
 
     case user do
-      user -> {:ok, user.profiles}
       nil -> {:error, :invalid_token}
+      user -> {:ok, user.profiles}
     end
   end
 
@@ -61,7 +61,19 @@ defmodule Trialmark.Profiles do
       ** (Ecto.NoResultsError)
 
   """
-  def get_profile!(id), do: Repo.get!(Profile, id)
+  def get_profile(%User{} = current_user, id) do 
+    profile = 
+      Profile
+      |> where(id: ^id)
+      |> Repo.one()
+    
+    with :ok <- Policy.authorize(:profile_read, current_user, profile) do
+      case profile do
+        nil -> {:error, :not_found}
+        profile -> {:ok, profile}
+      end
+    end
+  end
 
   @doc """
   Creates a profile for specific user.
@@ -102,15 +114,17 @@ defmodule Trialmark.Profiles do
     end
   end
 
+  # TODO: Create delete_profile_by_id
+
   @doc """
   Deletes a profile.
 
   ## Examples
 
-      iex> delete_profile(profile)
+      iex> delete_profile(current_user, profile)
       {:ok, %Profile{}}
 
-      iex> delete_profile(profile)
+      iex> delete_profile(current_user, profile)
       {:error, %Ecto.Changeset{}}
 
   """

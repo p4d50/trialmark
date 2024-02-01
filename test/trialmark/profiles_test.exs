@@ -25,10 +25,12 @@ defmodule Trialmark.ProfilesTest do
       assert Map.delete(Enum.at(profiles, 1), :user) == Map.delete(profile, :user)
     end
 
-    #test "get_profile!/1 returns the profile with given id" do
-    #  profile = profile_fixture()
-    #  assert Profiles.get_profile!(profile.id) == profile
-    #end
+    test "get_profile!/1 returns the profile with given id" do
+      generated_profile = profile_fixture()
+      {:ok, profile} = Profiles.get_profile(generated_profile.user, generated_profile.id)
+
+      assert Map.delete(generated_profile, :user) == Map.delete(profile, :user)
+    end
 
     #test "create_profile/1 with valid data creates a profile" do
     #  valid_attrs = %{name: "some name", avatar_url: "some avatar_url"}

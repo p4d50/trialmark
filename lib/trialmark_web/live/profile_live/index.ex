@@ -22,9 +22,11 @@ defmodule TrialmarkWeb.ProfileLive.Index do
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
+    {:ok, profile} = Profiles.get_profile(socket.assigns.current_user, id)
+
     socket
     |> assign(:page_title, "Edit Profile")
-    |> assign(:profile, Profiles.get_profile!(id))
+    |> assign(:profile, profile)
   end
 
   defp apply_action(socket, :new, _params) do
@@ -47,7 +49,7 @@ defmodule TrialmarkWeb.ProfileLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    profile = Profiles.get_profile!(id)
+    {:ok, profile} = Profiles.get_profile(socket.assigns.current_user, id)
 
     case Profiles.delete_profile(socket.assigns.current_user, profile) do
       {:ok, _} -> {:noreply, stream_delete(socket, :profiles, profile)}
