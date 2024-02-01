@@ -7,7 +7,7 @@ defmodule TrialmarkWeb.ProfileLive.Index do
 
   @impl true
   def mount(_params, %{"user_token" => user_token}, socket) do
-    profiles = Profiles.list_profiles_by_user_token(user_token)
+    {:ok, profiles} = Profiles.list_profiles_by_user_token(user_token)
     
     socket = socket
       |> stream(:profiles, profiles)

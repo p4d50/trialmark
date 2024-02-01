@@ -12,19 +12,39 @@ defmodule Trialmark.Profiles do
   alias Trialmark.Profiles.Profile
 
   @doc """
+  Returns the list of profiles associated to user
+
+  ## Example
+
+      iex> list_user_profiles(user)
+      {:ok, [%Profile{}, ...]}
+
+  """
+  def list_users_profiles(%User{} = user) do
+    user = user
+    |> Repo.preload(:profiles)
+    
+    {:ok, user.profiles}
+  end
+
+  @doc """
   Returns the list of profiles using user token.
 
   ## Examples
 
-      iex> list_profiles(user_token)
-      [%Profile{}, ...]
+      iex> list_profiles_by_user_token(token)
+      {:ok, [%Profile{}, ...]}
 
   """
-  def list_profiles_by_user_token(user_token) do
-    user = Accounts.get_user_by_session_token(user_token)
-    |> Repo.preload(:profiles)
-    
-    user.profiles
+  def list_profiles_by_user_token(token) do
+    user = 
+      Accounts.get_user_by_session_token(token)
+      |> Repo.preload(:profiles)
+
+    case user do
+      user -> {:ok, user.profiles}
+      nil -> {:error, :invalid_token}
+    end
   end
 
   @doc """
