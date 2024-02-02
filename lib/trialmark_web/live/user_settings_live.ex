@@ -2,6 +2,7 @@ defmodule TrialmarkWeb.UserSettingsLive do
   use TrialmarkWeb, :live_view
 
   alias Trialmark.Accounts
+  alias Trialmark.Profiles
 
   def render(assigns) do
     ~H"""
@@ -69,6 +70,29 @@ defmodule TrialmarkWeb.UserSettingsLive do
           </:actions>
         </.simple_form>
       </div>
+
+      <div class="p-4 shadow border border-gray-200 rounded-md">
+        <.header class="mt-4 text-left">
+          Account Profiles 
+          <:subtitle>Manage your account profiles</:subtitle>
+          <:actions>
+            <.link patch={~p"/profiles/new"}>
+              <.button>New Profile</.button>
+            </.link>
+          </:actions>
+        </.header>
+
+        <.table
+          id="profiles"
+          rows={@streams.profiles}
+        >
+          <:col :let={{_id, profile}} label="Name"><%= profile.name %></:col>
+          <:action :let={{_id, profile}}>
+            <.link navigate={~p"/profiles/#{profile}"}>Show</.link>
+            <.link patch={~p"/profiles/#{profile}/edit"}>Edit</.link>
+          </:action>
+        </.table>
+      </div>
     </div>
     """
   end
@@ -90,6 +114,7 @@ defmodule TrialmarkWeb.UserSettingsLive do
     user = socket.assigns.current_user
     email_changeset = Accounts.change_user_email(user)
     password_changeset = Accounts.change_user_password(user)
+    {:ok, profiles} = Profiles.list_users_profiles(user)
 
     socket =
       socket
@@ -98,6 +123,7 @@ defmodule TrialmarkWeb.UserSettingsLive do
       |> assign(:current_email, user.email)
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
+      |> stream(:profiles, profiles)
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
