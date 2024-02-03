@@ -53,7 +53,7 @@ defmodule TrialmarkWeb.ProfileLive.FormComponent do
     save_profile(socket, socket.assigns.action, profile_params)
   end
 
-  defp save_profile(socket, :edit, profile_params) do
+  defp save_profile(socket, :profile_edit, profile_params) do
     case Profiles.update_profile(socket.assigns.current_user, socket.assigns.profile, profile_params) do
       {:ok, profile} ->
         notify_parent({:saved, profile})
@@ -74,7 +74,7 @@ defmodule TrialmarkWeb.ProfileLive.FormComponent do
     end
   end
 
-  defp save_profile(socket, :new, profile_params) do
+  defp save_profile(socket, :profile_new, profile_params) do
     case Profiles.create_profile(profile_params, socket.assigns.current_user) do
       {:ok, profile} ->
         notify_parent({:saved, profile})

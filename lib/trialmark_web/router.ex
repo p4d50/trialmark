@@ -67,6 +67,8 @@ defmodule TrialmarkWeb.Router do
     live_session :require_authenticated_user,
       on_mount: [{TrialmarkWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
+      live "users/settings/profiles/new", UserSettingsLive, :profile_new
+      live "/users/settings/profiles/:id/edit", UserSettingsLive, :profile_edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
     end
   end
