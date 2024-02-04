@@ -130,6 +130,12 @@ defmodule Trialmark.Accounts.User do
     |> validate_password(opts)
   end
 
+  def all_changeset(user, attrs) do
+    user
+    |> email_changeset(attrs)
+    |> password_changeset(attrs)
+  end
+
   @doc """
   Confirms the account by setting `confirmed_at`.
   """

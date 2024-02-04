@@ -93,6 +93,10 @@ defmodule Trialmark.Accounts do
     end
   end
 
+  def change_user_all(%User{} = user, attrs \\ %{}) do
+    User.all_changeset(user, attrs)
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 
