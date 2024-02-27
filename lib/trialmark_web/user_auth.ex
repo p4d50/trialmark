@@ -4,6 +4,7 @@ defmodule TrialmarkWeb.UserAuth do
   import Plug.Conn
   import Phoenix.Controller
 
+  alias Trialmark.Repo
   alias Trialmark.Accounts
 
   # Make the remember me cookie valid for 60 days.
@@ -90,7 +91,7 @@ defmodule TrialmarkWeb.UserAuth do
   """
   def fetch_current_user(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
-    user = user_token && Accounts.get_user_by_session_token(user_token)
+    user = user_token && Accounts.get_user_by_session_token(user_token) |> Repo.preload(:profiles)
     assign(conn, :current_user, user)
   end
 

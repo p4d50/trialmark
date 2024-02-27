@@ -5,6 +5,7 @@ defmodule TrialmarkWeb.UserSettingsLive do
   alias Trialmark.Profiles
   alias Trialmark.Profiles.Profile
 
+  @impl true
   def render(assigns) do
     ~H"""
     <.header class="mb-4 text-center">
@@ -100,7 +101,7 @@ defmodule TrialmarkWeb.UserSettingsLive do
     """
   end
   
-  # User email confirmation
+  @impl true
   def mount(%{"token" => token}, _session, socket) do
     socket =
       case Accounts.update_user_email(socket.assigns.current_user, token) do
@@ -125,7 +126,6 @@ defmodule TrialmarkWeb.UserSettingsLive do
       |> assign(:current_password, nil)
       |> assign(:current_email, user.email)
       |> assign(:password_form, to_form(password_changeset))
-      |> assign(:confirm_identity_modal, false)
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
@@ -139,8 +139,6 @@ defmodule TrialmarkWeb.UserSettingsLive do
       {:noreply, socket}
     end
   end
-
-  def handle_event("toggleConfirmIdenty", _params, socket), do: {:noreply, assign(socket, :confirm_identity_modal, true)}
 
   def handle_event("validate_password", params, socket) do
     %{"current_password" => password, "user" => user_params} = params
@@ -169,6 +167,16 @@ defmodule TrialmarkWeb.UserSettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, password_form: to_form(changeset))}
+    end
+  end
+
+  @impl true
+  def handle_event("delete_profile", %{"id" => id}, socket) do
+    {:ok, profile} = Profiles.get_profile(socket.assigns.current_user, id)
+
+    case Profiles.delete_profile(socket.assigns.current_user, profile) do
+      {:ok, _} -> {:noreply, stream_delete(socket, :profiles, profile)}
+      {:error, :unauthorized} -> {:noreply, put_flash(socket, :error, "You can't delete this profile")}
     end
   end
 
@@ -202,15 +210,5 @@ defmodule TrialmarkWeb.UserSettingsLive do
   @impl true
   def handle_info({TrialmarkWeb.ProfileLive.FormComponent, {:saved, profile}}, socket) do
     {:noreply, stream_insert(socket, :profiles, profile)}
-  end
-  
-  @impl true
-  def handle_event("delete_profile", %{"id" => id}, socket) do
-    {:ok, profile} = Profiles.get_profile(socket.assigns.current_user, id)
-
-    case Profiles.delete_profile(socket.assigns.current_user, profile) do
-      {:ok, _} -> {:noreply, stream_delete(socket, :profiles, profile)}
-      {:error, :unauthorized} -> {:noreply, put_flash(socket, :error, "You can't delete this profile")}
-    end
   end
 end

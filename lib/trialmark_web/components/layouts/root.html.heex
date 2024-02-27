@@ -18,6 +18,11 @@
           <%= @current_user.email %>
         </li>
         <li>
+          <ul>
+            <%= for profile <- @current_user.profiles do %>
+              <li><%= profile.name %></li>
+            <% end %>
+          </ul>
           <.link
             href={~p"/users/settings"}
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
