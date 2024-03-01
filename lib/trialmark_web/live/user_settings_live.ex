@@ -4,6 +4,7 @@ defmodule TrialmarkWeb.UserSettingsLive do
   alias Trialmark.Accounts
   alias Trialmark.Profiles
   alias Trialmark.Profiles.Profile
+  alias Ecto.Changeset, as: Changeset
 
   @impl true
   def render(assigns) do
@@ -35,16 +36,16 @@ defmodule TrialmarkWeb.UserSettingsLive do
             type="password"
             label="Confirm New Password"
           />
-          <.input
+          <!--<.input
             field={@password_form[:current_password]}
             name="current_password"
             type="password"
             label="Current password"
             id="current_password_for_password"
             value={@current_password}
-          />
+          />-->
           <:actions>
-            <.button>Change Password</.button>
+            <.button disabled={@disabled}>Change Password</.button>
           </:actions>
         </.simple_form>
     </div>
@@ -81,6 +82,14 @@ defmodule TrialmarkWeb.UserSettingsLive do
         </:action>
       </.table>
     </div>
+
+    <.modal id="confirm_password" :if={@confirm_password_modal} show>
+      <.header>
+        Confirm your password
+        <:subtitle>In order to change password, you need to confirm your password..</:subtitle>
+      </.header>
+
+    </.modal>
 
     <.modal 
       :if={@live_action in [:profile_new, :profile_edit]} 
@@ -127,6 +136,8 @@ defmodule TrialmarkWeb.UserSettingsLive do
       |> assign(:current_email, user.email)
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)
+      |> assign(:disabled, true)
+      |> assign(:confirm_password_modal, false)
 
     {:ok, socket}
   end
@@ -141,7 +152,8 @@ defmodule TrialmarkWeb.UserSettingsLive do
   end
 
   def handle_event("validate_password", params, socket) do
-    %{"current_password" => password, "user" => user_params} = params
+    #%{"current_password" => password, "user" => user_params} = params
+    %{"user" => user_params} = params
 
     password_form =
       socket.assigns.current_user
@@ -149,25 +161,37 @@ defmodule TrialmarkWeb.UserSettingsLive do
       |> Map.put(:action, :validate)
       |> to_form()
 
-    {:noreply, assign(socket, password_form: password_form, current_password: password)}
+    if field_is_not_empty?(user_params, "password")
+      && field_is_not_empty?(user_params, "password_confirmation") 
+      && password_form.source.valid?
+    do
+      {:noreply, assign(socket, password_form: password_form, disabled: false)}
+    else
+      {:noreply, assign(socket, password_form: password_form, disabled: true)}
+    end
   end
 
-  def handle_event("update_password", params, socket) do
-    %{"current_password" => password, "user" => user_params} = params
-    user = socket.assigns.current_user
+  defp field_is_not_empty?(map, key) do
+    String.length(Map.get(map, key)) >= 1
+  end
 
-    case Accounts.update_user_password(user, password, user_params) do
-      {:ok, user} ->
-        password_form =
-          user
-          |> Accounts.change_user_password(user_params)
-          |> to_form()
+  def handle_event("update_password", params, socket) when socket.assigns.disabled == false do
+    {:noreply, assign(socket, confirm_password_modal: true)}
+    #%{"current_password" => password, "user" => user_params} = params
+    #user = socket.assigns.current_user
 
-        {:noreply, assign(socket, trigger_submit: true, password_form: password_form)}
+    #case Accounts.update_user_password(user, password, user_params) do
+    #  {:ok, user} ->
+    #    password_form =
+    #      user
+    #      |> Accounts.change_user_password(user_params)
+    #      |> to_form()
 
-      {:error, changeset} ->
-        {:noreply, assign(socket, password_form: to_form(changeset))}
-    end
+    #    {:noreply, assign(socket, trigger_submit: true, password_form: password_form)}
+
+    #  {:error, changeset} ->
+    #    {:noreply, assign(socket, password_form: to_form(changeset))}
+    #end
   end
 
   @impl true
@@ -180,7 +204,6 @@ defmodule TrialmarkWeb.UserSettingsLive do
     end
   end
 
-  # Profile related stuff
   defp apply_action(socket, :index, _params) do
     socket
     |> assign(:profile, nil)

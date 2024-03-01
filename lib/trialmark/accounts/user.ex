@@ -127,7 +127,7 @@ defmodule Trialmark.Accounts.User do
     user
     |> cast(attrs, [:password])
     |> validate_confirmation(:password, message: "does not match password")
-    |> validate_password(opts)
+    #|> validate_password(opts)
   end
 
   @doc """
